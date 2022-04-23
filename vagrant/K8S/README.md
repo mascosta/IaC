@@ -7,6 +7,8 @@ Conteúdo gerado a partir do guia da LINUXtips (Descomplicando Kubernetes).
 
 Esse guia é voltado para quem teve dificuldade de montar o ambiente "do zero" ou, simplesmente, não quer perder tempo provisionando máquinas virtuais uma a uma. 
 
+Para o laboratório é necessário usar a ferramenta chamada **vagrant**, através do [link](https://www.vagrantup.com/downloads).
+
 Importante salientar que não é toda máquina que aguenta esse tipo de "laboratório" então, use com cautela!
 
 ![](https://giffiles.alphacoders.com/207/207963.gif)
