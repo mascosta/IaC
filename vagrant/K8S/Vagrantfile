@@ -58,7 +58,7 @@ Vagrant.configure("2") do |config|
                 k8s.vm.provider "virtualbox" do |v| 
                     # Setting up custom settings
                     v.memory    = 1500
-                    v.name      = "k8s_#{i}"
+                    v.name      = "k8s-#{i}"
                 k8s.vm.provision "shell",
                     run: "always", 
                     inline: "route del default"
