@@ -35,7 +35,7 @@ vagrant ssh ${NomeDaVM}
 ```
 ## 5 - ~~Como descrito no livro [Descomplicando Kubernetes](https://livro.descomplicandokubernetes.com.br/pt/day_one/descomplicando_kubernetes.html) basta seguir os passos a partir da sessão **Inicialização do cluster** e pronto, o ambiente para estudos já está ok. :)~~
 
-[-Nota:-] Aparentemente o link do livro mudou e, no acesso pelo que vi do [atual](https://github.com/badtuxx/DescomplicandoKubernetes) não encontrei a abordagem da inicialização do cluster, então, segue versão inicializando e usando o calico como CNI! :)
+>    Nota: Aparentemente o link do livro mudou e, no acesso pelo que vi do [atual](https://github.com/badtuxx/DescomplicandoKubernetes) não encontrei a abordagem da inicialização do cluster, então, segue versão inicializando e usando o calico como CNI! :)
 
 ## 5 - Inicialização do cluster
 
@@ -58,7 +58,7 @@ vagrant ssh ${NomeDaVM}
     ```bash
     kubeadm init --token-ttl 0 --service-cidr=10.255.255.0/24 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=<IP_da_Interface>
     ```
-[-Nota-]  Os parâmetros ```--service-cidr``` e ```--pod-network-cidr``` são opcionais!
+> Nota:  Os parâmetros ```--service-cidr``` e ```--pod-network-cidr``` são opcionais!
 
 
 ![image](https://user-images.githubusercontent.com/55152388/164872900-2f0f2365-4621-417b-a3f4-c3d9f88f5938.png)
