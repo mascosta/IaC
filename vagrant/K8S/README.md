@@ -60,6 +60,61 @@ kubeadm init --token-ttl 0 --service-cidr=10.255.255.0/24 --pod-network-cidr=10.
 ```
 > Nota:  Os parâmetros ```--service-cidr``` e ```--pod-network-cidr``` são opcionais!
 
+### 5.4 - Após a inicalização, você deverá ver um retorno similar ao abaixo:
+
+```bash
+Your Kubernetes control-plane has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Alternatively, if you are the root user, you can run:
+
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+kubeadm join 192.168.100.230:6443 --token EITATOKENZAO \
+	--discovery-token-ca-cert-hash sha256:EITACHAVEZONA
+
+```
+
+- 5.4.1 - Esse trecho é usado para que você copie as informações e configurações do cluster para usa pasta de usuário, permitido ao ```kubectl``` entender onde vai trabalhar.
+
+```bash
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+```
+
+- 5.4.2 - Já o comando abaixo, trata-se do que será executado nos nós workers para ingresso no cluster.
+
+```bash
+kubeadm join 192.168.100.230:6443 --token EITATOKENZAO \
+    --discovery-token-ca-cert-hash sha256:EITACHAVEZONA
+# Cuidado que as vezes aparece um ponto quando copia e cola... :/
+```
+
+### 5.5 - Após adição dos nós, ao executar o comando ```kubectl get nodes``` será observado que eles ficação como *NotReady*.
+
+```bash
+root@k8s-master:/kubernetes# kubectl get nodes
+NAME         STATUS   ROLES                  AGE    VERSION
+k8s-1        NotReady    <none>                 124m   v1.23.17
+k8s-2        NotReady    <none>                 124m   v1.23.17
+k8s-master   NotReady    control-plane,master   125m   v1.23.17
+
+```
+
 
 ![image](https://user-images.githubusercontent.com/55152388/164872900-2f0f2365-4621-417b-a3f4-c3d9f88f5938.png)
 
