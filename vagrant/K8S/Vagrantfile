@@ -14,8 +14,8 @@
 
 # Some variables
 
-$route_ip = "192.168.100.1"                         # Configure to your environment gateway ip address
-$brdg_int = "wlp2s0"        # Configure to your environment NIC adapter
+$route_ip = "1.1.1.1"                         # Configure to your environment gateway ip address
+$brdg_int = "INT01"        # Configure to your environment NIC adapter
 
 
 Vagrant.configure("2") do |config|
@@ -51,7 +51,7 @@ end
 
 Vagrant.configure("2") do |config|
         (1..2).each do |i| 
-            config.vm.define "k8s_#{i}" do |k8s|
+            config.vm.define "k8s-#{i}" do |k8s|
                 k8s.vm.box = "debian/buster64"
                 k8s.vm.hostname = "k8s-#{i}"
                 k8s.vm.network "public_network", bridge: "#{$brdg_int}" 
