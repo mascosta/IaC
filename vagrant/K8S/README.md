@@ -15,48 +15,50 @@ Importante salientar que não é toda máquina que aguenta esse tipo de "laborat
 
 ## Instruções de uso.
 
-### 1 - Clonar o repositório.
+## 1 - Clonar o repositório.
 
 ```bash
 git clone https://github.com/mascosta/IaC.git
 ```
 
-### 2 - Alterar o arquivo **Vagrantfile** nas variáveis de interface de rede e endereço do gateway da **SUA** rede.
+## 2 - Alterar o arquivo **Vagrantfile** nas variáveis de interface de rede e endereço do gateway da **SUA** rede.
 
-### 3 - Executar o comando abaixo para provisionar o ambiente:
+## 3 - Executar o comando abaixo para provisionar o ambiente:
 
 ```bash
 vagrant up
 ```
-### 4 - Com o ambiente já rodando, agora resta acessar a máquina.
+## 4 - Com o ambiente já rodando, agora resta acessar a máquina.
 
 ```bash
 vagrant ssh ${NomeDaVM}
 ```
-### 5 - ~~Como descrito no livro [Descomplicando Kubernetes](https://livro.descomplicandokubernetes.com.br/pt/day_one/descomplicando_kubernetes.html) basta seguir os passos a partir da sessão **Inicialização do cluster** e pronto, o ambiente para estudos já está ok. :)~~
+## 5 - ~~Como descrito no livro [Descomplicando Kubernetes](https://livro.descomplicandokubernetes.com.br/pt/day_one/descomplicando_kubernetes.html) basta seguir os passos a partir da sessão **Inicialização do cluster** e pronto, o ambiente para estudos já está ok. :)~~
 
-### 5 - Inicialização do cluster
+[- Nota: -] Aparentemente o link do livro mudou e, no acesso pelo que vi do [atual] (https://github.com/badtuxx/DescomplicandoKubernetes) não encontrei a abordagem da inicialização do cluster, então, segue versão inicializando e usando o calico como CNI! :)
 
-    - Acesse a VM master.
+## 5 - Inicialização do cluster
+
+### 5.1 - Acesse a VM master.
 
     ```bash
     vagrant ssh k8s-master
     ```
 
-    - Veja qual o endereço de IP da interface da VM.
+### 5.2 - Veja qual o endereço de IP da interface da VM.
 
 
     ```bash
     ip address show | grep "inet "
     ```
 
-    - Baseado nesse endereço, execute o comando de inicialização do cluster.
+### 5.3 - Baseado nesse endereço, execute o comando de inicialização do cluster.
 
 
     ```bash
     kubeadm init --token-ttl 0 --service-cidr=10.255.255.0/24 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=<IP_da_Interface>
     ```
-        - Note: Os parâmetros ```--service-cidr``` e ```--pod-network-cidr``` são opcionais!
+[- Note -]  Os parâmetros ```--service-cidr``` e ```--pod-network-cidr``` são opcionais!
 
 
 ![image](https://user-images.githubusercontent.com/55152388/164872900-2f0f2365-4621-417b-a3f4-c3d9f88f5938.png)
