@@ -114,9 +114,56 @@ k8s-2        NotReady    <none>                 124m   v1.23.17
 k8s-master   NotReady    control-plane,master   125m   v1.23.17
 
 ```
+- Para que ele mude para **Ready** é necessária a instalação do *CNI*(Container Network Interface) onde, para esse guia, será instalado o [CALICO 3.25](https://docs.tigera.io/calico/3.25/getting-started/kubernetes/self-managed-onprem/onpremises)
 
+```bash
+#Instalação do OPERATOR (Opcional)
+kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/tigera-operator.yaml
+#Download do manifest
+curl https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/calico.yaml -O
+#Instalação do manifest
+kubectl create -f calico.yaml
+```
 
-![image](https://user-images.githubusercontent.com/55152388/164872900-2f0f2365-4621-417b-a3f4-c3d9f88f5938.png)
+### 5.6 - Pra finalizar, será instalado o Metrics-Server, que permite monitoramento dos nós e pods do cluster.
+
+```bash
+#Download do manifest
+wget https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+```
+
+```bash
+#Editar o arquivo para ignorar a checagem TLS
+vim components.yaml
+```
+
+```yaml
+#Adicionar --kubelet-insecure-tls abaixo do parâmetro --metric-resolution, como mostrado abaixo:
+spec:
+      containers:
+      - args:
+        - --cert-dir=/tmp
+        - --secure-port=4443
+        - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+        - --kubelet-use-node-status-port
+        - --metric-resolution=15s
+        - --kubelet-insecure-tls
+```
+
+### 6 - Validando o funcionamento:
+
+```bash
+root@k8s-master:/kubernetes# kubectl get nodes
+NAME         STATUS   ROLES                  AGE    VERSION
+k8s-1        Ready    <none>                 141m   v1.23.17
+k8s-2        Ready    <none>                 141m   v1.23.17
+k8s-master   Ready    control-plane,master   142m   v1.23.17
+root@k8s-master:/kubernetes# kubectl top nodes
+NAME         CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%   
+k8s-1        349m         17%    1092Mi          57%       
+k8s-2        381m         19%    1094Mi          57%       
+k8s-master   332m         16%    1381Mi          72% 
+```
 
 
 ## Agora é correr pro abraço! :D
