@@ -35,7 +35,7 @@ vagrant ssh ${NomeDaVM}
 ```
 ## 5 - ~~Como descrito no livro [Descomplicando Kubernetes](https://livro.descomplicandokubernetes.com.br/pt/day_one/descomplicando_kubernetes.html) basta seguir os passos a partir da sessão **Inicialização do cluster** e pronto, o ambiente para estudos já está ok. :)~~
 
-[-Nota:-] Aparentemente o link do livro mudou e, no acesso pelo que vi do [atual] (https://github.com/badtuxx/DescomplicandoKubernetes) não encontrei a abordagem da inicialização do cluster, então, segue versão inicializando e usando o calico como CNI! :)
+[-Nota:-] Aparentemente o link do livro mudou e, no acesso pelo que vi do [atual](https://github.com/badtuxx/DescomplicandoKubernetes) não encontrei a abordagem da inicialização do cluster, então, segue versão inicializando e usando o calico como CNI! :)
 
 ## 5 - Inicialização do cluster
 
