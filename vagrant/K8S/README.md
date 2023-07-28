@@ -41,23 +41,23 @@ vagrant ssh ${NomeDaVM}
 
 ### 5.1 - Acesse a VM master.
 
-    ```bash
-    vagrant ssh k8s-master
-    ```
+```bash
+vagrant ssh k8s-master
+```
 
 ### 5.2 - Veja qual o endereço de IP da interface da VM.
 
 
-    ```bash
-    ip address show | grep "inet "
-    ```
+```bash
+ip address show | grep "inet "
+```
 
 ### 5.3 - Baseado nesse endereço, execute o comando de inicialização do cluster.
 
 
-    ```bash
-    kubeadm init --token-ttl 0 --service-cidr=10.255.255.0/24 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=<IP_da_Interface>
-    ```
+```bash
+kubeadm init --token-ttl 0 --service-cidr=10.255.255.0/24 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=<IP_da_Interface>
+```
 > Nota:  Os parâmetros ```--service-cidr``` e ```--pod-network-cidr``` são opcionais!
 
 
