@@ -1,0 +1,103 @@
+
+
+#################################################################################################################################
+#																
+# Script Name: Vagrantfile													
+# 
+# Description: A code to provision 3 VMs for kube local labs 				
+# Author: Marcus Costa														
+# Email Address: marcus.asc@gmail.com												
+# Execution Sample: Just "vagrant up" :)									
+# 
+#################################################################################################################################
+
+
+# Some variables
+
+$route_ip = "192.168.100.1"                         # Configure to your environment gateway ip address
+$brdg_int = "wlp2s0"        # Configure to your environment NIC adapter
+
+
+Vagrant.configure("2") do |config|
+    # Setting up the quantity of VM's will be configured, in this case, 1 to 4.
+            # Using the number of VM "i" to compose it VirtualBox name.
+            
+            config.vm.box_url = "https://oracle.github.io/vagrant-projects/boxes/oraclelinux/9.json"
+            config.vm.define "kube-m1" do |kubem|
+                kubem.vm.box = "oraclelinux/9"
+                # Using the number of VM "i" to compose it hostname
+                kubem.vm.hostname = "kube-m1"
+                kubem.vm.network "public_network", bridge: "#{$brdg_int}" 
+                kubem.vm.provider "virtualbox" do |v| 
+                    v.memory    = 2048
+                    v.name      = "kube-m1"
+                end
+                kubem.vm.provision "shell",
+                    run: "always",
+                    inline: "ip route del default"    
+                kubem.vm.provision "shell",
+                    run: "always",
+                    inline: "ip route add default via #{$route_ip}"
+            config.vm.provision "shell", inline: <<-SHELL
+                dnf clean all -y && \
+                dnf install epel-release vim wget bash-completion tcpdump curl telnet nmap yum-utils zip unzip -y && \
+                yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo && \
+                dnf remove docker docker-* podman runc && \
+                dnf install -y containerd.io && \
+                systemctl enable --now containerd && \
+                sed -i 's,SELINUX=enforcing,SELINUX=permissive,g' /etc/selinux/config && \
+                modprobe overlay && \ 
+                modprobe br_netfilter && \
+                systemctl disable --now firewalld
+                SHELL
+            config.vm.provision "file", source: "./k8s.sh", destination: "~/k8s.sh"
+            config.vm.provision "shell", inline: <<-SHELL
+                chmod +x k8s.sh && sed -i 's/\r$//' /home/vagrant/k8s.sh && /home/vagrant/k8s.sh
+            SHELL
+            config.vm.provision "shell", inline: <<-SHELL
+                dnf install kubeadm-1.28.1 cri-tools kubelet-1.28.1 kubectl-1.28.1 socat conntrack-tools -y
+            SHELL
+            end 
+end
+
+Vagrant.configure("2") do |config|
+    # Setting up the quantity of VM's will be configured, in this case, 1 to 4.
+            # Using the number of VM "i" to compose it VirtualBox name.
+            
+            config.vm.box_url = "https://oracle.github.io/vagrant-projects/boxes/oraclelinux/9.json"
+            config.vm.define "kube-w1" do |kubew|
+                kubew.vm.box = "oraclelinux/9"
+                # Using the number of VM "i" to compose it hostname
+                kubew.vm.hostname = "kube-w1"
+                kubew.vm.network "public_network", bridge: "#{$brdg_int}" 
+                kubew.vm.provider "virtualbox" do |v| 
+                    v.memory    = 4096
+                    v.name      = "kube-w1"
+                end
+                kubew.vm.provision "shell",
+                    run: "always",
+                    inline: "ip route del default"    
+                kubew.vm.provision "shell",
+                    run: "always",
+                    inline: "ip route add default via #{$route_ip}"
+            config.vm.provision "shell", inline: <<-SHELL
+                dnf clean all -y && \
+                dnf install epel-release vim wget bash-completion tcpdump curl telnet nmap yum-utils zip unzip -y && \
+                yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo && \
+                dnf remove docker docker-* podman runc && \
+                dnf install -y containerd.io && \
+                systemctl enable --now containerd && \
+                sed -i 's,SELINUX=enforcing,SELINUX=permissive,g' /etc/selinux/config && \
+                modprobe overlay && \ 
+                modprobe br_netfilter && \
+                systemctl disable --now firewalld
+                SHELL
+            config.vm.provision "file", source: "./k8s.sh", destination: "~/k8s.sh"
+            config.vm.provision "shell", inline: <<-SHELL
+                chmod +x k8s.sh && sed -i 's/\r$//' /home/vagrant/k8s.sh && /home/vagrant/k8s.sh
+            SHELL
+            config.vm.provision "shell", inline: <<-SHELL
+                dnf install kubeadm-1.28.1 cri-tools kubelet-1.28.1 kubectl-1.28.1 socat conntrack-tools -y
+            SHELL
+            end 
+end
