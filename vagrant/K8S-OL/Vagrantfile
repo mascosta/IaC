@@ -14,23 +14,23 @@
 
 # Some variables
 
-$route_ip = "IP_ADDR"                         # Configure to your environment gateway ip address
-$brdg_int = "DEVICE"        # Configure to your environment NIC adapter
-
+$route_ip = "GWADDR"        # Configure to your environment gateway ip address
+$brdg_int = "NICNAME"       # Configure to your environment NIC adapter
 
 Vagrant.configure("2") do |config|
     # Setting up the quantity of VM's will be configured, in this case, 1 to 4.
             # Using the number of VM "i" to compose it VirtualBox name.
             
             config.vm.box_url = "https://oracle.github.io/vagrant-projects/boxes/oraclelinux/9.json"
-            config.vm.define "kube-m1" do |kubem|
+            config.vm.define "k8s-cpol" do |kubem|
                 kubem.vm.box = "oraclelinux/9"
                 # Using the number of VM "i" to compose it hostname
-                kubem.vm.hostname = "kube-m1"
+                kubem.vm.hostname = "k8s-cpol"
                 kubem.vm.network "public_network", bridge: "#{$brdg_int}" 
                 kubem.vm.provider "virtualbox" do |v| 
-                    v.memory    = 2048
-                    v.name      = "kube-m1"
+                    v.memory    = 1500
+                    v.cpus      = 2
+                    v.name      = "k8s-cpol"
                 end
                 kubem.vm.provision "shell",
                     run: "always",
@@ -38,7 +38,7 @@ Vagrant.configure("2") do |config|
                 kubem.vm.provision "shell",
                     run: "always",
                     inline: "ip route add default via #{$route_ip}"
-            config.vm.provision "shell", inline: <<-SHELL
+                    kubem.vm.provision "shell", inline: <<-SHELL
                 dnf clean all -y && \
                 dnf install epel-release vim wget bash-completion tcpdump curl telnet nmap yum-utils zip unzip -y && \
                 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo && \
@@ -50,29 +50,27 @@ Vagrant.configure("2") do |config|
                 modprobe br_netfilter && \
                 systemctl disable --now firewalld
                 SHELL
-            config.vm.provision "file", source: "./k8s.sh", destination: "~/k8s.sh"
-            config.vm.provision "shell", inline: <<-SHELL
+                kubem.vm.provision "file", source: "./k8s.sh", destination: "~/k8s.sh"
+                kubem.vm.provision "shell", inline: <<-SHELL
                 chmod +x k8s.sh && sed -i 's/\r$//' /home/vagrant/k8s.sh && /home/vagrant/k8s.sh
             SHELL
-            config.vm.provision "shell", inline: <<-SHELL
+            kubem.vm.provision "shell", inline: <<-SHELL
                 dnf install kubeadm-1.28.1 cri-tools kubelet-1.28.1 kubectl-1.28.1 socat conntrack-tools -y
             SHELL
             end 
-end
-
-Vagrant.configure("2") do |config|
     # Setting up the quantity of VM's will be configured, in this case, 1 to 4.
             # Using the number of VM "i" to compose it VirtualBox name.
-            
-            config.vm.box_url = "https://oracle.github.io/vagrant-projects/boxes/oraclelinux/9.json"
-            config.vm.define "kube-w1" do |kubew|
+            (1..2).each do |i|            
+            config.vm.define "k8s-wol#{i}" do |kubew|
+                kubew.vm.box_url = "https://oracle.github.io/vagrant-projects/boxes/oraclelinux/9.json"
                 kubew.vm.box = "oraclelinux/9"
                 # Using the number of VM "i" to compose it hostname
-                kubew.vm.hostname = "kube-w1"
+                kubew.vm.hostname = "k8s-wol#{i}"
                 kubew.vm.network "public_network", bridge: "#{$brdg_int}" 
                 kubew.vm.provider "virtualbox" do |v| 
-                    v.memory    = 4096
-                    v.name      = "kube-w1"
+                    v.memory    = 2500
+                    v.cpus      = 2
+                    v.name      = "k8s-wol#{i}"
                 end
                 kubew.vm.provision "shell",
                     run: "always",
@@ -80,7 +78,7 @@ Vagrant.configure("2") do |config|
                 kubew.vm.provision "shell",
                     run: "always",
                     inline: "ip route add default via #{$route_ip}"
-            config.vm.provision "shell", inline: <<-SHELL
+                kubew.vm.provision "shell", inline: <<-SHELL
                 dnf clean all -y && \
                 dnf install epel-release vim wget bash-completion tcpdump curl telnet nmap yum-utils zip unzip -y && \
                 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo && \
@@ -92,12 +90,13 @@ Vagrant.configure("2") do |config|
                 modprobe br_netfilter && \
                 systemctl disable --now firewalld
                 SHELL
-            config.vm.provision "file", source: "./k8s.sh", destination: "~/k8s.sh"
-            config.vm.provision "shell", inline: <<-SHELL
+                kubew.vm.provision "file", source: "./k8s.sh", destination: "~/k8s.sh"
+                kubew.vm.provision "shell", inline: <<-SHELL
                 chmod +x k8s.sh && sed -i 's/\r$//' /home/vagrant/k8s.sh && /home/vagrant/k8s.sh
-            SHELL
-            config.vm.provision "shell", inline: <<-SHELL
+                SHELL
+                kubew.vm.provision "shell", inline: <<-SHELL
                 dnf install kubeadm-1.28.1 cri-tools kubelet-1.28.1 kubectl-1.28.1 socat conntrack-tools -y
-            SHELL
+                SHELL
             end 
-end
+        end
+        end

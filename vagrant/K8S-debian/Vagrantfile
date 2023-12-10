@@ -14,67 +14,62 @@
 
 # Some variables
 
-$route_ip = "1.1.1.1"                         # Configure to your environment gateway ip address
-$brdg_int = "INT01"        # Configure to your environment NIC adapter
-
+$route_ip = "GWADDR"        # Configure to your environment gateway ip address
+$brdg_int = "NICNAME"       # Configure to your environment NIC adapter
 
 Vagrant.configure("2") do |config|
     # Setting up the quantity of VM's will be configured, in this case, 1 to 4.
             # Using the number of VM "i" to compose it VirtualBox name.
-            config.vm.define "k8s-master" do |k8sm|
+            config.vm.define "k8s-cpdeb" do |k8sm|
                 k8sm.vm.box = "debian/buster64"
                 # Using the number of VM "i" to compose it hostname
-                k8sm.vm.hostname = "k8s-master"
+                k8sm.vm.hostname = "k8s-cpdeb"
                 k8sm.vm.network "public_network", bridge: "#{$brdg_int}" 
                 k8sm.vm.provider "virtualbox" do |v| 
                     v.memory    = 2048
-                    v.name      = "k8s-master"
+                    v.name      = "k8s-cpdeb"
                 end
+                k8sm.vm.provision "shell", inline: <<-SHELL
+                apt update -y && apt install vim wget tcpdump curl htop telnet nmap net-tools sysstat -y && curl -fsSL https://get.docker.com | bash && curl -L https://raw.githubusercontent.com/docker/compose/1.29.2/contrib/completion/bash/docker-compose -o /etc/bash_completion.d/docker-compose
+                SHELL
                 k8sm.vm.provision "shell",
                     run: "always",
                     inline: "route del default"    
                 k8sm.vm.provision "shell",
                     run: "always",
                     inline: "route add default gw #{$route_ip}"
-            config.vm.provision "shell", inline: <<-SHELL
-                apt update -y && apt install vim wget tcpdump curl htop telnet nmap net-tools sysstat -y && curl -fsSL https://get.docker.com | bash && curl -L https://raw.githubusercontent.com/docker/compose/1.29.2/contrib/completion/bash/docker-compose -o /etc/bash_completion.d/docker-compose
-                SHELL
-            config.vm.provision "file", source: "./.vimrc", destination: "~/.vimrc"
-            config.vm.provision "file", source: "./k8s.conf", destination: "~/k8s.conf"
-            config.vm.provision "file", source: "./daemon.json", destination: "~/daemon.json"
-            config.vm.provision "file", source: "./k8s.sh", destination: "~/k8s.sh"
-            config.vm.provision "shell", inline: <<-SHELL
+                k8sm.vm.provision "file", source: "./.vimrc", destination: "~/.vimrc"
+                k8sm.vm.provision "file", source: "./k8s.conf", destination: "~/k8s.conf"
+                k8sm.vm.provision "file", source: "./daemon.json", destination: "~/daemon.json"
+                k8sm.vm.provision "file", source: "./k8s.sh", destination: "~/k8s.sh"
+                k8sm.vm.provision "shell", inline: <<-SHELL
                 chmod +x k8s.sh && sed -i 's/\r$//' /home/vagrant/k8s.sh && /home/vagrant/k8s.sh
             SHELL
             end 
-end
-
-Vagrant.configure("2") do |config|
         (1..2).each do |i| 
-            config.vm.define "k8s-#{i}" do |k8s|
+            config.vm.define "k8s-wdeb#{i}" do |k8s|
                 k8s.vm.box = "debian/buster64"
-                k8s.vm.hostname = "k8s-#{i}"
+                k8s.vm.hostname = "k8s-wdeb#{i}"
                 k8s.vm.network "public_network", bridge: "#{$brdg_int}" 
                 k8s.vm.provider "virtualbox" do |v| 
                     # Setting up custom settings
                     v.memory    = 2048
-                    v.name      = "k8s-#{i}"
+                    v.name      = "k8s-wdeb#{i}"
                 end
+                k8s.vm.provision "shell", inline: <<-SHELL
+                apt update -y && apt install vim wget tcpdump curl htop telnet nmap net-tools sysstat -y && curl -fsSL https://get.docker.com | bash && curl -L https://raw.githubusercontent.com/docker/compose/1.29.2/contrib/completion/bash/docker-compose -o /etc/bash_completion.d/docker-compose
+                SHELL
                 k8s.vm.provision "shell",
                     run: "always", 
                     inline: "route del default"
                 k8s.vm.provision "shell",
                     run: "always",
                     inline: "route add default gw #{$route_ip}"
-               
-            config.vm.provision "shell", inline: <<-SHELL
-                apt update -y && apt install vim wget tcpdump curl htop telnet nmap net-tools sysstat -y && curl -fsSL https://get.docker.com | bash && curl -L https://raw.githubusercontent.com/docker/compose/1.29.2/contrib/completion/bash/docker-compose -o /etc/bash_completion.d/docker-compose
-                SHELL
-            config.vm.provision "file", source: "./.vimrc", destination: "~/.vimrc"
-            config.vm.provision "file", source: "./k8s.conf", destination: "~/k8s.conf"
-            config.vm.provision "file", source: "./daemon.json", destination: "~/daemon.json"
-            config.vm.provision "file", source: "./k8s.sh", destination: "~/k8s.sh"
-            config.vm.provision "shell", inline: <<-SHELL
+                k8s.vm.provision "file", source: "./.vimrc", destination: "~/.vimrc"
+                k8s.vm.provision "file", source: "./k8s.conf", destination: "~/k8s.conf"
+                k8s.vm.provision "file", source: "./daemon.json", destination: "~/daemon.json"
+                k8s.vm.provision "file", source: "./k8s.sh", destination: "~/k8s.sh"
+                k8s.vm.provision "shell", inline: <<-SHELL
                 chmod +x k8s.sh && sed -i 's/\r$//' /home/vagrant/k8s.sh && /home/vagrant/k8s.sh
             SHELL
             end

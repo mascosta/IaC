@@ -1,0 +1,68 @@
+
+
+#################################################################################################################################
+#																
+# Script Name: Vagrantfile													
+# 
+# Description: A code to provision 3 VMs for kube local labs 				
+# Author: Marcus Costa														
+# Email Address: marcus.asc@gmail.com												
+# Execution Sample: Just "vagrant up" :)									
+# 
+#################################################################################################################################
+
+
+# Some variables
+
+$route_ip = "GWADDR"        # Configure to your environment gateway ip address
+$brdg_int = "NICNAME"       # Configure to your environment NIC adapter
+
+Vagrant.configure("2") do |config|
+    # Setting up the quantity of VM's will be configured, in this case, 1 to 4.
+            # Using the number of VM "i" to compose it VirtualBox name.
+    config.vm.define "lpiol" do |lpiol|
+        lpiol.vm.box_url = "https://oracle.github.io/vagrant-projects/boxes/oraclelinux/9.json"
+        lpiol.vm.box = "oraclelinux/9"
+        # Using the number of VM "i" to compose it hostname
+        lpiol.vm.hostname = "lpiol"
+        lpiol.vm.network "public_network", bridge: "#{$brdg_int}" 
+        lpiol.vm.provider "virtualbox" do |v| 
+            v.memory    = 1500
+            v.cpus      = 2
+            v.name      = "lpiol"
+        end
+        lpiol.vm.provision "shell",
+            run: "always",
+            inline: "ip route del default"    
+        lpiol.vm.provision "shell",
+            run: "always",
+            inline: "ip route add default via #{$route_ip}"
+        lpiol.vm.provision "shell", inline: <<-SHELL
+            dnf clean all -y && \
+            dnf install epel-release vim wget bash-completion net-tools tcpdump curl telnet nmap yum-utils zip unzip -y && \
+            sed -i 's,SELINUX=enforcing,SELINUX=permissive,g' /etc/selinux/config && \
+            systemctl disable --now firewalld
+        SHELL
+    end         
+    config.vm.define "lpideb" do |lpideb|
+        lpideb.vm.box = "debian/bullseye64"
+        # Using the number of VM "i" to compose it hostname
+        lpideb.vm.hostname = "lpideb"
+        lpideb.vm.network "public_network", bridge: "#{$brdg_int}" 
+        lpideb.vm.provider "virtualbox" do |v| 
+            v.memory    = 2500
+            v.cpus      = 2
+            v.name      = "lpideb"
+        end
+        lpideb.vm.provision "shell",
+            run: "always",
+            inline: "ip route del default"    
+        lpideb.vm.provision "shell",
+            run: "always",
+            inline: "ip route add default via #{$route_ip}"
+        lpideb.vm.provision "shell", inline: <<-SHELL
+            apt update -y && \
+            apt install vim wget bash-completion tcpdump net-tools curl telnet nmap zip unzip -y 
+        SHELL
+    end 
+end
