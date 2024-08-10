@@ -1,0 +1,22 @@
+$TTL 1h
+@   IN SOA  lpiol.dominio.local. admin.dominio.local. (
+                    2024081003  ; serial
+                    8H  ; refresh
+                    1H  ; retry
+                    1D  ; expire
+                    1H )    ; minimum
+        NS          lpiol.dominio.local.
+@       NS          lpideb.dominio.local.
+        MX          5   mail
+        MX          10  mail2
+
+lpiol       A       10.0.0.214
+lpideb      A       10.0.0.213
+mail        A       10.0.0.214
+mail2       A       10.0.0.213
+www         A       10.0.0.214
+ftp         A       10.0.0.213
+mk          A       10.0.0.1
+ol          CNAME   lpiol
+debian      CNAME   lpideb
+@           IN      TXT     "Texto LPI2"
