@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: dev-k8s-local-cert
+  namespace: nginx-gateway
+spec:
+  secretName: dev-k8s-local-tls
+  issuerRef:
+    name: selfsigned-issuer
+    kind: ClusterIssuer
+  commonName: dev.k8s.local
+  dnsNames:
+  - dev.k8s.local

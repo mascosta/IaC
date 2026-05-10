@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: meu-apache
+  name: meu-apache
+  namespace: ns1
+spec:
+  selector:
+    matchLabels:
+      app: meu-apache
+  template:
+    metadata:
+      labels:
+        app: meu-apache
+    spec:
+      initContainers:
+      - name: setup
+        image: busybox
+        command: ["sh", "-c", "sed \"s/POD_NAME_PLACEHOLDER/$MY_POD_NAME/g\" /readonly/index.html > /writable/index.html"]
+        env:
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        volumeMounts:
+        - name: config
+          mountPath: /readonly
+        - name: static-page
+          mountPath: /writable
+      containers:
+      - image: httpd:alpine
+        imagePullPolicy: Always
+        name: httpd
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: static-page
+          mountPath: /usr/local/apache2/htdocs/meu-apache/index.html
+          subPath: index.html
+      volumes:
+      - name: config
+        configMap: 
+          name: meu-apache
+      - name: static-page
+        emptyDir: {}

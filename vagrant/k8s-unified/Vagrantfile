@@ -1,0 +1,72 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Configuration
+OS_IMAGE = "debian/bookworm64"
+WK_COUNT = 1
+CP_MEM = 4096
+CP_CPU = 3
+WK_MEM = 6144
+WK_CPU = 4
+
+# Networking (adjust bridge and gateway as needed)
+BRIDGE_INTERFACE = "wlp2s0" # Change this to your local bridge interface
+GATEWAY_IP = "192.168.18.1"  # Change this to your local gateway
+VBOX_GROUP = "/k8s-lab" # Group name in VirtualBox (starts with /)
+
+# Internal IPs for K8s Communication (using VirtualBox internal network 'intnet')
+CP_PRIVATE_IP = "10.255.255.10"
+INTNET_NAME = "k8s-intnet"
+
+Vagrant.configure("2") do |config|
+  config.vm.box = OS_IMAGE
+
+  # Control Plane Node
+  config.vm.define "k8s-cp" do |cp|
+    cp.vm.hostname = "k8s-cp"
+    cp.vm.network "public_network", bridge: BRIDGE_INTERFACE
+    cp.vm.network "private_network", ip: CP_PRIVATE_IP, virtualbox__intnet: INTNET_NAME
+
+    cp.vm.provider "virtualbox" do |v|
+      v.memory = CP_MEM
+      v.cpus = CP_CPU
+      v.name = "k8s-cp"
+      v.customize ["modifyvm", :id, "--groups", VBOX_GROUP]
+    end
+
+    # Fix default route to use the bridge gateway for external access
+    cp.vm.provision "shell", run: "always", inline: "ip route del default || true"
+    cp.vm.provision "shell", run: "always", inline: "ip route add default via #{GATEWAY_IP}"
+
+    cp.vm.provision "shell", path: "scripts/common.sh"
+
+    # Dynamic /etc/hosts population
+    config.vm.provision "shell", inline: "echo '10.255.255.10 k8s-cp' >> /etc/hosts"
+    (1..WK_COUNT).each do |i|
+      config.vm.provision "shell", inline: "echo '10.255.255.#{10 + i} k8s-wk-#{i}' >> /etc/hosts"
+    end
+    config.vm.provision "shell", inline: "sort -u /etc/hosts -o /etc/hosts"
+  end
+
+  # Worker Nodes
+  (1..WK_COUNT).each do |i|
+    config.vm.define "k8s-wk-#{i}" do |wk|
+      wk.vm.hostname = "k8s-wk-#{i}"
+      wk.vm.network "public_network", bridge: BRIDGE_INTERFACE
+      wk.vm.network "private_network", ip: "10.255.255.#{10 + i}", virtualbox__intnet: INTNET_NAME
+
+      wk.vm.provider "virtualbox" do |v|
+        v.memory = WK_MEM
+        v.cpus = WK_CPU
+        v.name = "k8s-wk-#{i}"
+        v.customize ["modifyvm", :id, "--groups", VBOX_GROUP]
+      end
+
+      # Fix default route
+      wk.vm.provision "shell", run: "always", inline: "ip route del default || true"
+      wk.vm.provision "shell", run: "always", inline: "ip route add default via #{GATEWAY_IP}"
+
+      wk.vm.provision "shell", path: "scripts/common.sh"
+    end
+  end
+end

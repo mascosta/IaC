@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: meu-apache
+  namespace: ns1
+  labels:
+    app: meu-apache
+data:
+  index.html: |+
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Conexão Bem Sucedida</title>
+      <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+      <style>
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+
+        body {
+          font-family: 'Roboto', sans-serif;
+          background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+          color: #fff;
+          height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+        }
+
+        .container {
+          background: rgba(255, 255, 255, 0.05);
+          padding: 2rem 3rem;
+          border-radius: 12px;
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+          backdrop-filter: blur(10px);
+        }
+
+        h1 {
+          font-size: 2rem;
+          margin-bottom: 0.5rem;
+        }
+
+        p {
+          font-size: 1.2rem;
+          color: #a0e7e5;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>Conexão via ingress bem sucedida :)</h1>
+        <p>Você chegou com sucesso ao pod: <strong>POD_NAME_PLACEHOLDER</strong></p>
+      </div>
+    </body>
+    </html>
